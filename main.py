@@ -1,6 +1,10 @@
+from bs4 import BeautifulSoup as bs
+from dotenv import load_dotenv
 import requests
 import json
-from bs4 import BeautifulSoup as bs
+import os
+
+load_dotenv("C:\Python\InsthyreScraper\.env")
 
 
 def fetch_job_descriptions():
@@ -94,10 +98,14 @@ def create_markdown_prompt():
 
 
 def analyze_requirements_using_gemini():
-    gemini_api_key = "AIzaSyDYqps0MVGueOodKZKl2AwbpX39KjB63KU"
-    gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    gemini_api_url = os.getenv("GEMINI_API_URL")
 
-    prompt = """You need to analyze the give job requirements, let me know the most asked skills across the job requirements provided. """
+    final_url = gemini_api_url + gemini_api_key
+    
+    # print(final_url)
+
+    prompt = """You need to analyze the given job requirements, let me know the most asked skills across the job requirements provided. """
 
     mark_down_requirements = create_markdown_prompt()
 
@@ -118,7 +126,7 @@ def analyze_requirements_using_gemini():
     }
 
     response = requests.post(
-        url=gemini_api_url, json=request_body, headers=headers)
+        url=final_url, json=request_body, headers=headers)
 
     if response.status_code == 200:
         data = response.json()
@@ -166,7 +174,8 @@ def main():
     # fetch_job_descriptions()
     # get_requirements_from_jd()
     # create_markdown_prompt()
-    analyze_requirements_using_ollama()
+    analyze_requirements_using_gemini()
+    # analyze_requirements_using_ollama()
     # html = "<html><body><p><strong>Responsibilities: </strong></p><ul><li>Propose solutions to solve complex system architecture challenges and actively lead the end-to-end development of the system.</li><li>Create robust, flexible, consistent, and easy-to-use APIs.</li><li>Continuously strive for performance improvements, code reusability, and readability.</li><li>Understand the product in detail and predict potential issues in feature development.</li><li>Mentor and lead junior members of the team.</li></ul><p><br /></p><p><strong>Requirements: </strong></p><ul><li>Ability to think out of the box.</li><li>Tech or a higher degree in computer science or a related field.</li><li>1+ years of experience working on back-end development for complex distributed systems who are willing to adopt any programming language as required.</li><li>Familiarity with any of the following - Java, C++, Scala, Kotlin, and frameworks like Spring, Play, Hibernate, Django, etc.</li><li>Good understanding of Algorithms, Data Structure, OOP, Design patterns, Parallel programming, Multithreading concepts, and Event-Driven Systems.</li><li>Understanding of micro-services architecture and best practices.</li><li>Experience with Relational databases such as MySQL, PostgreSQL, Oracle, or any NoSQL database.</li><li>Familiarity with cloud platforms like AWS (Amazon Web Services), Azure, or Google Cloud.</li></ul></body></html>"
     # soup = bs(html, "html.parser")
     # requirements_heading = soup.find("strong", string='Requirements: ')
